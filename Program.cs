@@ -1,4 +1,4 @@
-// using Microsoft.AspNetCore.Builder;
+﻿// using Microsoft.AspNetCore.Builder;
 // using TaniusViewerServer;
 
 // var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +15,6 @@
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 
 Console.Title = "Server";
 var builder = WebApplication.CreateBuilder();
