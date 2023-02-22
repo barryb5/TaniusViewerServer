@@ -1,7 +1,7 @@
 class FullData {
-    List<Account> accounts;
+    public List<Account> accounts { get; set; }
 
-    FullData() {
+    public FullData() {
         this.accounts = new List<Account>() 
         {
             new Account(

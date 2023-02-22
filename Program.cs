@@ -16,11 +16,16 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 Console.Title = "Server";
 var builder = WebApplication.CreateBuilder();
 
 builder.WebHost.UseUrls("http://localhost:4000");
 var app = builder.Build();
+
+FullData fullData = new FullData();
 
 app.UseWebSockets();
 app.Map("/ws", async context =>
@@ -31,7 +36,7 @@ app.Map("/ws", async context =>
         {
             while (true)
             {
-                await webSocket.SendAsync(Encoding.ASCII.GetBytes($"Test - {DateTime.Now}"), WebSocketMessageType.Text, true, CancellationToken.None);
+                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(fullData)), WebSocketMessageType.Text, true, CancellationToken.None);
                 await Task.Delay(1000);
             }
         }
