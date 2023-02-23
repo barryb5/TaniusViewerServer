@@ -25,6 +25,11 @@ var builder = WebApplication.CreateBuilder();
 builder.WebHost.UseUrls("http://localhost:4000");
 var app = builder.Build();
 
+JsonSerializerOptions options = new JsonSerializerOptions{
+    Converters ={
+        new JsonStringEnumConverter()
+    }
+};
 
 SnapshotData fullData = new SnapshotData();
 
@@ -37,8 +42,8 @@ app.Map("/ws", async context =>
         {
             while (true)
             {
-                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(fullData)), WebSocketMessageType.Text, true, CancellationToken.None);
-                await Task.Delay(1000);
+                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(fullData, options)), WebSocketMessageType.Text, true, CancellationToken.None);
+                await Task.Delay(5000);
             }
         }
     }

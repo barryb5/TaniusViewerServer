@@ -10,9 +10,9 @@ using Microsoft.Extensions.Hosting;
 namespace TaniusViewerServer {
     public class Startup {
         
-        public async void Start() {
+        // public async void Start() {
             
-        }
+        // }
         public void ConfigureServices(IServiceCollection services) {
 
         }

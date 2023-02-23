@@ -1,7 +1,11 @@
-class SnapshotData {
+class SnapshotData : StandardMessage {
     public List<Account> accounts { get; set; }
 
-    public SnapshotData() {
+    public SnapshotData() : base(MessageType.snapshot, 1.0) {
+
+        // base.messageType = MessageType.snapshot;
+        // base.version = 1.0;
+
         this.accounts = new List<Account>() 
         {
             new Account(
