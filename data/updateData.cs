@@ -1,8 +1,8 @@
 class UpdateData : StandardMessage {
 
-    String accountName;
+    public String accountName { get; set; }
 
-    AccountData updatedData;
+    public AccountData updatedData { get; set; }
 
     public UpdateData(String accountName, AccountData update) : base(MessageType.update, 1.0) {
         this.accountName = accountName;
@@ -13,8 +13,6 @@ class UpdateData : StandardMessage {
         Random random = new Random();
 
         this.accountName = "Mercury";
-        this.updatedData = new AccountData("Mercury", (int)(random.NextDouble() * 1000), random.NextDouble() * 3, random.NextDouble() * 15000);
+        this.updatedData = new AccountData("Mercury", (int)(random.NextDouble() * 1000), Math.Round(random.NextDouble() * 3, 2), Math.Round(random.NextDouble() * 15000, 2));
     }
-
-
 }
