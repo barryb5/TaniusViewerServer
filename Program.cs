@@ -31,6 +31,8 @@ JsonSerializerOptions options = new JsonSerializerOptions{
     }
 };
 
+List<WebSocket> clientWebSockets = new List<WebSocket>();
+
 
 app.UseWebSockets();
 app.Map("/ws", async context => {
@@ -39,21 +41,19 @@ app.Map("/ws", async context => {
         int offset = 0;
 
         using (var webSocket = await context.WebSockets.AcceptWebSocketAsync()) {
-            Console.WriteLine("New Listener");
+            clientWebSockets.Add(webSocket);
+            int listenerID = clientWebSockets.Count;
+            Console.WriteLine("New Listener " + listenerID);
             await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new SnapshotData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
 
             while (webSocket.State == WebSocketState.Open) {
-                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new UpdateData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
-                await Task.Delay(5000);
-
                 var requestSegment = new ArraySegment<byte>(requestBuffer, offset, requestBuffer.Length - offset);
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(requestSegment, CancellationToken.None);
 
                 if (result.MessageType == WebSocketMessageType.Close) {
                     // Close
-                    Console.WriteLine("Listener Disconnected");
+                    Console.WriteLine("Listener " + listenerID + " Disconnected");
                     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                    break;
                 }
             }
         }
@@ -62,3 +62,12 @@ app.Map("/ws", async context => {
     }
 });
 await app.RunAsync();
+
+Action<string> sendAll = (message) =>
+{
+    clientWebSockets.ForEach(async webSocket => {
+        await webSocket.SendAsync(Encoding.ASCII.GetBytes(message), WebSocketMessageType.Text, true, CancellationToken.None);
+    });
+};
+
+// JsonSerializer.Serialize(new UpdateData(), options)
