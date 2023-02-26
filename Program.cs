@@ -31,7 +31,6 @@ JsonSerializerOptions options = new JsonSerializerOptions{
     }
 };
 
-SnapshotData fullData = new SnapshotData();
 
 app.UseWebSockets();
 app.Map("/ws", async context =>
@@ -40,9 +39,12 @@ app.Map("/ws", async context =>
     {
         using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
         {
+            Console.WriteLine("New Listener");
+            await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new SnapshotData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
+
             while (true)
             {
-                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(fullData, options)), WebSocketMessageType.Text, true, CancellationToken.None);
+                await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new UpdateData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
                 await Task.Delay(5000);
             }
         }
