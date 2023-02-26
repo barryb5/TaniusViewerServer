@@ -33,24 +33,31 @@ JsonSerializerOptions options = new JsonSerializerOptions{
 
 
 app.UseWebSockets();
-app.Map("/ws", async context =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {
-        using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
-        {
+app.Map("/ws", async context => {
+    if (context.WebSockets.IsWebSocketRequest) {
+        byte[] requestBuffer = new byte[4194304];
+        int offset = 0;
+
+        using (var webSocket = await context.WebSockets.AcceptWebSocketAsync()) {
             Console.WriteLine("New Listener");
             await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new SnapshotData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
 
-            while (true)
-            {
+            while (webSocket.State == WebSocketState.Open) {
                 await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new UpdateData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
                 await Task.Delay(5000);
+
+                var requestSegment = new ArraySegment<byte>(requestBuffer, offset, requestBuffer.Length - offset);
+                WebSocketReceiveResult result = await webSocket.ReceiveAsync(requestSegment, CancellationToken.None);
+
+                if (result.MessageType == WebSocketMessageType.Close) {
+                    // Close
+                    Console.WriteLine("Listener Disconnected");
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                    break;
+                }
             }
         }
-    }
-    else
-    {
+    } else {
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
     }
 });
