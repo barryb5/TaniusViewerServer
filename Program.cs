@@ -61,13 +61,37 @@ app.Map("/ws", async context => {
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
     }
 });
-await app.RunAsync();
+// await app.RunAsync();
 
-Action<string> sendAll = (message) =>
+Action<string> sendAll = async (message) =>
 {
-    clientWebSockets.ForEach(async webSocket => {
-        await webSocket.SendAsync(Encoding.ASCII.GetBytes(message), WebSocketMessageType.Text, true, CancellationToken.None);
-    });
+    List<WebSocket> toRemove = new List<WebSocket>();
+
+    for (int i = clientWebSockets.Count - 1; i >= 0; i--){
+        // Send here
+        if (clientWebSockets[i].State == WebSocketState.Open) {
+            await clientWebSockets[i].SendAsync(Encoding.ASCII.GetBytes(message), WebSocketMessageType.Text, true, CancellationToken.None);
+        } else {
+            // Remove value if websocketstate isn't open so no errors
+            clientWebSockets.RemoveAt(i);
+        }
+    }
 };
 
-// JsonSerializer.Serialize(new UpdateData(), options)
+// 
+
+
+Thread socketThread = new Thread(() => {app.Run();}) {
+    IsBackground = true,
+};
+
+Thread updateThread = new Thread(() => {
+    while(true) {
+        sendAll(JsonSerializer.Serialize(new UpdateData(), options));
+        Thread.Sleep(5000);
+    }
+}) {};
+
+socketThread.Start();
+updateThread.Start();
+Console.ReadLine();
