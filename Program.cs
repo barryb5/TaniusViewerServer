@@ -94,4 +94,4 @@ Thread updateThread = new Thread(() => {
 
 socketThread.Start();
 updateThread.Start();
-Console.ReadLine();
+// Console.ReadLine();
