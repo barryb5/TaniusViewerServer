@@ -11,13 +11,20 @@
 
 // app.Run();
 
-
-using System.Net;
-using System.Net.WebSockets;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
+
+
+using System.Net.WebSockets;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net;
 
 Console.Title = "Server";
 var builder = WebApplication.CreateBuilder();
@@ -92,6 +99,27 @@ Thread updateThread = new Thread(() => {
     }
 }) {};
 
+Thread authenticationThread = new Thread(() => {
+    var builder = WebApplication.CreateBuilder();
+
+    builder.WebHost.UseUrls("http://localhost:5000");
+    
+    var app = builder.Build();
+    
+    app.MapGet("/", () => {
+        return "This is the authentication server";
+    });
+
+    app.MapGet("/authenticate", () => {
+        Console.WriteLine("user");
+    });
+
+    app.Run();
+
+    
+});
+
 socketThread.Start();
 updateThread.Start();
+authenticationThread.Start();
 // Console.ReadLine();
