@@ -25,6 +25,8 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 Console.Title = "Server";
 var builder = WebApplication.CreateBuilder();
@@ -100,6 +102,11 @@ Thread updateThread = new Thread(() => {
 }) {};
 
 Thread authenticationThread = new Thread(() => {
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile("/home/barry/Downloads/taniusviewer-b9a011eaa858.json"),
+    });
+
     var builder = WebApplication.CreateBuilder();
 
     builder.WebHost.UseUrls("http://localhost:5000");
