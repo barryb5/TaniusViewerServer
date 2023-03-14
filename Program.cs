@@ -107,6 +107,8 @@ Thread authenticationThread = new Thread(() => {
         Credential = GoogleCredential.FromFile("/home/barry/Downloads/taniusviewer-b9a011eaa858.json"),
     });
 
+    UserPermsManager.resetTable();
+
     var builder = WebApplication.CreateBuilder();
 
     builder.WebHost.UseUrls("http://localhost:5000");
@@ -117,8 +119,9 @@ Thread authenticationThread = new Thread(() => {
         return "This is the authentication server";
     });
 
-    app.MapGet("/authenticate", () => {
-        Console.WriteLine("user");
+    app.MapGet("/authenticate", (String user) => {
+        Console.WriteLine("user: " + user);
+        return "Hello " + user;
     });
 
     app.Run();
