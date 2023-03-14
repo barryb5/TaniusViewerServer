@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using System.Text.Json;
 
 class UserPermsManager {
     static SqliteConnection connection = new SqliteConnection("Data Source=userManagement/users.db");
@@ -20,6 +21,7 @@ class UserPermsManager {
             CREATE TABLE users (
                 email PRIMARY KEY,
                 name TEXT ONLY,
+                password TEXT ONLY,
                 accounts TEXT ONLY
             );
         ";
@@ -29,10 +31,27 @@ class UserPermsManager {
 
         // Hardcode myself in every time just in case (and for testing)
         command.CommandText = 
-        @"
-            INSERT INTO users (email, name, accounts) VALUES ('bbalasingham@gmail.com', 'Barry Balasingham', 'all')
+        $@"
+            INSERT INTO users (email, name, password, accounts) VALUES ('bbalasingham@gmail.com', 'Barry Balasingham', 'password', '{JsonSerializer.Serialize(new AccountList(new List<string>{ "mercury", "mike", "john" }))}')
         ";
-
+        
         command.ExecuteNonQuery();
+    }
+
+    public static String getUserAccounts(String email, String password) {
+        var command = connection.CreateCommand();
+
+         command.CommandText = 
+         $@"
+            SELECT accounts FROM user WHERE email = {email} AND password = {password}
+         ";
+
+        var reader = command.ExecuteReader();
+
+        if (reader.Read()) {
+            return reader.GetString(0);
+        } else {
+            return "";
+        }
     }
 }
