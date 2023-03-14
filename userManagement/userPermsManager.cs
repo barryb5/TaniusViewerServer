@@ -41,10 +41,11 @@ class UserPermsManager {
     public static String getUserAccounts(String email, String password) {
         var command = connection.CreateCommand();
 
-         command.CommandText = 
-         $@"
-            SELECT accounts FROM users WHERE email = {email} AND password = {password}
-         ";
+        // Pretty self explanatory
+        command.CommandText = 
+        $@"
+           SELECT accounts FROM users WHERE email = {email} AND password = {password}
+        ";
 
         var reader = command.ExecuteReader();
 

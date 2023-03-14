@@ -51,13 +51,21 @@ app.Map("/ws", async context => {
             clientWebSockets.Add(webSocket);
             int listenerID = clientWebSockets.Count;
             Console.WriteLine("New Listener " + listenerID);
+
+            // Recieve the accounts first
+            var accoutsSegment = new ArraySegment<byte>(requestBuffer, offset, requestBuffer.Length - offset);
+            WebSocketReceiveResult accountsResult = await webSocket.ReceiveAsync(accoutsSegment, CancellationToken.None);
+
+            Console.WriteLine(accountsResult.ToString());
+
+            // Send only data for certain accounts
             await webSocket.SendAsync(Encoding.ASCII.GetBytes(JsonSerializer.Serialize(new SnapshotData(), options)), WebSocketMessageType.Text, true, CancellationToken.None);
 
             while (webSocket.State == WebSocketState.Open) {
-                var requestSegment = new ArraySegment<byte>(requestBuffer, offset, requestBuffer.Length - offset);
-                WebSocketReceiveResult result = await webSocket.ReceiveAsync(requestSegment, CancellationToken.None);
+                var closeSegment = new ArraySegment<byte>(requestBuffer, offset, requestBuffer.Length - offset);
+                WebSocketReceiveResult closeResult = await webSocket.ReceiveAsync(closeSegment, CancellationToken.None);
 
-                if (result.MessageType == WebSocketMessageType.Close) {
+                if (closeResult.MessageType == WebSocketMessageType.Close) {
                     // Close
                     Console.WriteLine("Listener " + listenerID + " Disconnected");
                     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
