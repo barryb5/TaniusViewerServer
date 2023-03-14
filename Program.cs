@@ -112,9 +112,9 @@ Thread authenticationThread = new Thread(() => {
         return "This is the authentication server";
     });
 
-    app.MapGet("/authenticate", (String user) => {
-        Console.WriteLine("user: " + user);
-        return "Hello " + user;
+    app.MapGet("/authenticate", (String email, String password) => {
+        Console.WriteLine("user: " + email);
+        return UserPermsManager.getUserAccounts(email, password);
     });
 
     app.Run();

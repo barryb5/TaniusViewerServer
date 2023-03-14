@@ -43,7 +43,7 @@ class UserPermsManager {
 
          command.CommandText = 
          $@"
-            SELECT accounts FROM user WHERE email = {email} AND password = {password}
+            SELECT accounts FROM users WHERE email = {email} AND password = {password}
          ";
 
         var reader = command.ExecuteReader();
